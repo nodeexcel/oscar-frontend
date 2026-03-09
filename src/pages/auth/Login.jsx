@@ -1,0 +1,51 @@
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import FormField from '../../components/ui/FormField';
+import AuthForm from '../../components/auth/AuthForm';
+
+export default function Login() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      await login({ email, password });
+      navigate('/dashboard', { replace: true });
+    } catch (err) {
+      const msg = err.response?.data?.detail;
+      setError(Array.isArray(msg) ? msg.map((x) => x.msg).join(', ') : msg?.message || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <AuthForm
+        title="Welcome back"
+        subtitle="Sign in to your account to continue"
+        error={error}
+        onSubmit={handleSubmit}
+        loading={loading}
+        submitLabel="Sign in"
+      >
+        <FormField id="login-email" label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
+        <FormField id="login-password" label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
+        <div className="text-center text-sm text-[#2d3238]">
+          <Link to="/forgot-password" className="text-[#1a1d21] font-medium hover:underline">Forgot password?</Link>
+        </div>
+      </AuthForm>
+      <p className="mt-6 text-center text-sm text-[#2d3238]">
+        Don't have an account? <Link to="/signup" className="text-[#1a1d21] font-medium hover:underline">Sign up</Link>
+      </p>
+    </>
+  );
+}
