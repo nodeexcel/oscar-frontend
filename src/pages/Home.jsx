@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#efece7]">
-      <section className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="h-full min-h-screen min-h-[100dvh] flex flex-col bg-[#efece7]">
+      <section className="flex-1 flex flex-col justify-center min-h-0 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <span className="hero-badge inline-block px-4 py-1.5 text-sm font-medium text-white bg-[#1a1d21] rounded-full mb-6">
             Solutions for Hospitality
@@ -24,7 +24,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section className="py-10 md:py-14 border-t border-[#e8e6e3]">
+      <section className="flex-shrink-0 py-10 md:py-8 border-t border-[#e8e6e3]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl md:text-3xl font-bold text-[#1a1d21] text-center mb-10">
             Everything you need to run your venue
@@ -44,7 +44,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section className="py-6 bg-[#fafaf8] border-t border-[#e8e6e3]">
+      <section className="flex-shrink-0 py-6 bg-[#fafaf8] border-t border-[#e8e6e3]">
         <p className="text-center text-sm font-medium text-[#1a1d21] tracking-wide">
           JOIN OVER 10,000 BUSINESSES GLOBALLY GROWING WITH BOOKING SYSTEM
         </p>

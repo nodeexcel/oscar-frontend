@@ -1,14 +1,25 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { resetPassword } from '../../api/auth';
 import FormField from '../../components/ui/FormField';
 import AuthForm from '../../components/auth/AuthForm';
 
 export default function ResetPassword() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [form, setForm] = useState({ token: '', new_password: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [tokenFromUrl, setTokenFromUrl] = useState(false);
+
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (token) {
+      setForm((p) => ({ ...p, token }));
+      setTokenFromUrl(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -47,7 +58,9 @@ export default function ResetPassword() {
         loading={loading}
         submitLabel="Update password"
       >
-        <FormField id="reset-token" label="Reset token" value={form.token} onChange={(e) => setForm((p) => ({ ...p, token: e.target.value }))} placeholder="Paste token from email" required />
+        {!tokenFromUrl && (
+          <FormField id="reset-token" label="Reset token" value={form.token} onChange={(e) => setForm((p) => ({ ...p, token: e.target.value }))} placeholder="Paste token from email" required />
+        )}
         <FormField id="reset-new_password" label="New password" type="password" value={form.new_password} onChange={(e) => setForm((p) => ({ ...p, new_password: e.target.value }))} placeholder="New password" required />
       </AuthForm>
       <p className="mt-6 text-center text-sm text-[#2d3238]">

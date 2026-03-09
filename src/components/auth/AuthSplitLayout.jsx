@@ -1,6 +1,6 @@
 export default function AuthSplitLayout({ imageSrc, quote, children }) {
   return (
-    <div className="h-screen grid grid-cols-1 lg:grid-cols-2 bg-[#efece7]">
+    <div className="h-screen min-h-[100dvh] grid grid-cols-1 lg:grid-cols-2 bg-[#efece7]">
       <div
         className="relative hidden lg:block h-full min-h-0 bg-[#e8e6e3] bg-cover bg-center"
         style={{ backgroundImage: `url(${imageSrc})` }}

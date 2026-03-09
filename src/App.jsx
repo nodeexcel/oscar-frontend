@@ -9,7 +9,7 @@ function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#efece7]">
+      <div className="h-full min-h-screen min-h-[100dvh] flex flex-col bg-[#efece7]">
         <div className="flex-1 flex items-center justify-center p-6">
           <p className="text-[#2d3238]">Loading…</p>
         </div>
@@ -24,7 +24,7 @@ function PublicRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#efece7]">
+      <div className="h-full min-h-screen min-h-[100dvh] flex flex-col bg-[#efece7]">
         <div className="flex-1 flex items-center justify-center p-6">
           <p className="text-[#2d3238]">Loading…</p>
         </div>
