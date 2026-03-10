@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { listTenants } from '../../api/tenants';
+import { validateEmail, validatePassword, validateFullName, validateBusinessName } from '../../utils/validation';
+import { getApiErrorMessage } from '../../utils/apiErrors';
 import FormField from '../../components/ui/FormField';
 import FormSelect from '../../components/ui/FormSelect';
 import AuthForm from '../../components/auth/AuthForm';
@@ -39,26 +41,50 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (!isAdmin && !form.tenant_id) {
-      setError('Please select a business.');
+
+    const nameError = validateFullName(form.full_name);
+    if (nameError) {
+      setError(nameError);
       return;
     }
+    const emailError = validateEmail(form.email);
+    if (emailError) {
+      setError(emailError);
+      return;
+    }
+    const pwdError = validatePassword(form.password, 'Password');
+    if (pwdError) {
+      setError(pwdError);
+      return;
+    }
+    if (isAdmin) {
+      const bizError = validateBusinessName(form.business_name);
+      if (bizError) {
+        setError(bizError);
+        return;
+      }
+    } else {
+      if (!form.tenant_id || !form.tenant_id.trim()) {
+        setError('Please select a business.');
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const payload = {
-        email: form.email,
+        email: form.email.trim(),
         password: form.password,
-        full_name: form.full_name,
+        full_name: form.full_name.trim(),
         role: form.role,
         ...(isAdmin
-          ? { business_name: form.business_name }
+          ? { business_name: form.business_name.trim() }
           : { tenant_id: Number(form.tenant_id), business_name: '' }),
       };
       await signup(payload);
       navigate('/login', { replace: true });
     } catch (err) {
-      const msg = err.response?.data?.detail;
-      setError(Array.isArray(msg) ? msg.map((x) => x.msg).join(', ') : msg?.message || 'Signup failed');
+      setError(getApiErrorMessage(err, 'Signup failed. Please try again.'));
     } finally {
       setLoading(false);
     }

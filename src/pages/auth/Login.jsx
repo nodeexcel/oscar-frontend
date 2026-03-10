@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { validateEmail, validatePassword } from '../../utils/validation';
+import { getApiErrorMessage } from '../../utils/apiErrors';
 import FormField from '../../components/ui/FormField';
 import AuthForm from '../../components/auth/AuthForm';
 
@@ -15,13 +17,24 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    const emailError = validateEmail(email);
+    if (emailError) {
+      setError(emailError);
+      return;
+    }
+    const pwdError = validatePassword(password, 'Password');
+    if (pwdError) {
+      setError(pwdError);
+      return;
+    }
+
     setLoading(true);
     try {
-      await login({ email, password });
-      navigate('/dashboard', { replace: true });
+      const user = await login({ email: email.trim(), password });
+      navigate(user?.role === 'admin' ? '/admin' : '/dashboard', { replace: true });
     } catch (err) {
-      const msg = err.response?.data?.detail;
-      setError(Array.isArray(msg) ? msg.map((x) => x.msg).join(', ') : msg?.message || 'Login failed');
+      setError(getApiErrorMessage(err, 'Login failed. Please try again.'));
     } finally {
       setLoading(false);
     }

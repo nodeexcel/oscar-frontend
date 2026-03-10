@@ -9,13 +9,19 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const loadUser = useCallback(async () => {
+    const timeoutMs = 8000;
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), timeoutMs)
+    );
     try {
-      const data = await authApi.me();
+      const data = await Promise.race([authApi.me(), timeoutPromise]);
       setUser(data);
+      setLoading(false);
+      return data;
     } catch {
       setUser(null);
-    } finally {
       setLoading(false);
+      return null;
     }
   }, []);
 
@@ -33,7 +39,8 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (payload) => {
     await authApi.login(payload);
-    await loadUser();
+    const user = await loadUser();
+    return user;
   }, [loadUser]);
 
   const signup = useCallback(async (payload) => {
@@ -46,7 +53,9 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
-  const value = { user, loading, login, signup, logout, refreshUser: loadUser };
+  const updatePassword = useCallback((payload) => authApi.updatePassword(payload), []);
+
+  const value = { user, loading, login, signup, logout, refreshUser: loadUser, updatePassword };
 
   return (
     <AuthContext.Provider value={value}>

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { forgotPassword } from '../../api/auth';
+import { validateEmail } from '../../utils/validation';
+import { getApiErrorMessage } from '../../utils/apiErrors';
 import FormField from '../../components/ui/FormField';
 import AuthForm from '../../components/auth/AuthForm';
 
@@ -23,14 +25,20 @@ export default function ForgotPassword() {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    const emailError = validateEmail(email);
+    if (emailError) {
+      setError(emailError);
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = await forgotPassword({ email });
+      const res = await forgotPassword({ email: email.trim() });
       setSuccess(res.message || 'Check your email for reset instructions.');
       setResendIn(RESEND_COOLDOWN);
     } catch (err) {
-      const msg = err.response?.data?.detail;
-      setError(Array.isArray(msg) ? msg.map((x) => x.msg).join(', ') : msg?.message || 'Request failed');
+      setError(getApiErrorMessage(err, 'Request failed. Please try again.'));
     } finally {
       setLoading(false);
     }

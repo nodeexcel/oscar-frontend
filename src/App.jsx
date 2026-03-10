@@ -3,7 +3,19 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AuthLayout from './components/auth/AuthLayout';
 import { Login, Signup, ForgotPassword, ResetPassword } from './pages/auth';
 import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
+import {
+  UserDashboardLayout,
+  BookSlot,
+  MyBookings,
+} from './pages/dashboard/index';
+import {
+  AdminDashboard,
+  AdminDashboardLayout,
+  AdminWorkingHours,
+  AdminUsers,
+  AdminBookings,
+} from './pages/admin';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -20,7 +32,8 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-function PublicRoute({ children }) {
+/** Admin-only: redirects non-admins to user dashboard. */
+function AdminRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) {
     return (
@@ -31,14 +44,48 @@ function PublicRoute({ children }) {
       </div>
     );
   }
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== 'admin') return <Navigate to="/dashboard" replace />;
+  return children;
+}
+
+function PublicRoute({ children }) {
+  const { user, loading } = useAuth();
+  // Show form immediately; only redirect when we know user is logged in
+  if (!loading && user) {
+    return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
+  }
   return children;
 }
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <UserDashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<BookSlot />} />
+        <Route path="bookings" element={<MyBookings />} />
+      </Route>
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <AdminDashboardLayout />
+          </AdminRoute>
+        }
+      >
+        <Route index element={<AdminDashboard />} />
+        <Route path="working-hours" element={<AdminWorkingHours />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="bookings" element={<AdminBookings />} />
+      </Route>
+      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/" element={<Home />} />
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />

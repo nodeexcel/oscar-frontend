@@ -12,7 +12,7 @@ export default function AuthForm({ title, subtitle, error, success, onSubmit, lo
         {error && <div className="p-3 rounded-lg text-sm bg-red-50 text-red-600 border border-red-200">{error}</div>}
         {success && <div className="p-3 rounded-lg text-sm bg-green-50 text-green-700 border border-green-200">{success}</div>}
         {showForm && children}
-        {showForm && <button type="submit" className={btn} disabled={disabled}>{loading ? '…' : submitLabel}</button>}
+        {showForm && <button type="submit" className={btn} disabled={disabled}>{loading ? 'Loading…' : submitLabel}</button>}
       </form>
     </>
   );
